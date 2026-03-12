@@ -1,3 +1,11 @@
+# ========================
+# Frontend (frontend/)
+# ========================
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/*.local
+
 # Logs
 logs
 *.log
@@ -7,12 +15,26 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ========================
+# Backend (backend/)
+# ========================
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.venv/
+backend/.env
 
-# Editor directories and files
+# ========================
+# Database (database/)
+# ========================
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# ========================
+# Editor & OS files
+# ========================
 .vscode/*
 !.vscode/extensions.json
 .idea
