@@ -12,6 +12,8 @@ import datetime
 from newspaper import Article
 
 import os
+import threading
+
 
 app = FastAPI(title="TruthCompass AI Backend")
 DB_DIR = os.path.join(os.path.dirname(__file__), "..", "database")
@@ -107,7 +109,9 @@ def load_model():
         print(f"Error loading model: {e}")
 @app.on_event("startup")
 async def startup_event():
-    load_model()
+    # Load model in background to prevent Render startup timeout
+    threading.Thread(target=load_model, daemon=True).start()
+
 
 class AnalysisRequest(BaseModel):
     text: str = None
