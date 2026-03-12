@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+gunicorn
+pydantic
+scikit-learn
+pandas
+numpy
+joblib
+python-multipart
+transformers
+torch
+newspaper4k
+sqlalchemy
