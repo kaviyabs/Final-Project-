@@ -1,19 +1,19 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import os
+import threading
+import datetime
 import numpy as np
 from sqlalchemy import create_engine, Column, Integer, String, Float, Text, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import datetime
-from newspaper import Article
 
 import os
 import threading
 
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 app = FastAPI(title="TruthCompass AI Backend")
 DB_DIR = os.path.join(os.path.dirname(__file__), "..", "database")
@@ -101,6 +101,17 @@ model = None
 def load_model():
     global tokenizer, model
     try:
+        import torch
+        from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        import nltk
+        
+        # Download necessary NLTK data for newspaper
+        try:
+            nltk.download('punkt', quiet=True)
+            nltk.download('punkt_tab', quiet=True)
+        except Exception as e:
+            print(f"NLTK download warning: {e}")
+
         print(f"Loading AI model: {MODEL_NAME}...")
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
@@ -224,6 +235,7 @@ async def analyze_news(request: AnalysisRequest):
     
     if request.url:
         try:
+            from newspaper import Article
             article = Article(request.url)
             article.download()
             article.parse()
@@ -244,6 +256,7 @@ async def analyze_news(request: AnalysisRequest):
             result = simulate_analysis(text)
         else:
             try:
+                import torch
                 inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
                 with torch.no_grad():
                     outputs = model(**inputs)
@@ -313,5 +326,6 @@ def simulate_analysis(text):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     print(f"Starting server on port {port}...")
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    # Set reload=False for production to avoid overhead and multiple loaders
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
 
