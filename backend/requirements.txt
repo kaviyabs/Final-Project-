@@ -1,13 +1,15 @@
 fastapi
 uvicorn
+gunicorn
 pydantic
 scikit-learn
 pandas
 numpy
 joblib
 python-multipart
-cors
 transformers
 torch
 newspaper4k
+lxml_html_clean
+nltk
 sqlalchemy

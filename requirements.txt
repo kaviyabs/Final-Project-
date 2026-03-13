@@ -10,4 +10,6 @@ python-multipart
 transformers
 torch
 newspaper4k
+lxml_html_clean
+nltk
 sqlalchemy
