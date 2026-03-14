@@ -88,9 +88,13 @@ def seed_data():
 seed_data()
 
 # Enable CORS for React frontend
+# In production, you will set FRONTEND_URL to your Railway frontend URL
+frontend_url = os.environ.get("FRONTEND_URL", "*")
+origins = [frontend_url] if frontend_url != "*" else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the actual origin
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
