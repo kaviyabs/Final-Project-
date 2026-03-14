@@ -44,7 +44,8 @@ const Admin = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch("http://localhost:8000/stats");
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const response = await fetch(`${API_BASE_URL}/stats`);
         if (response.ok) {
           const data = await response.json();
           setStats(data);

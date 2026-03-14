@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: truth_compass
+      MYSQL_USER: localuser
+      MYSQL_PASSWORD: localpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - DATABASE_URL=mysql+pymysql://localuser:localpassword@db/truth_compass
+    depends_on:
+      db:
+        condition: service_started
+    restart: always
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - PORT=5173
+      # VITE_API_URL is built into the React app at build time.
+      # Localhost works correctly because your browser talks to localhost:8000 on your machine.
+    depends_on:
+      backend:
+        condition: service_started
+    restart: always
+
+volumes:
+  db_data:

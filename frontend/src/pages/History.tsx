@@ -25,7 +25,8 @@ const History = () => {
   const fetchHistory = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:8000/history");
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const response = await fetch(`${API_BASE_URL}/history`);
       if (response.ok) {
         const data = await response.json();
         setHistory(data);
@@ -44,7 +45,8 @@ const History = () => {
   const clearHistory = async () => {
     if (confirm("Are you sure you want to clear all history?")) {
       try {
-        await fetch("http://localhost:8000/history", { method: "DELETE" });
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        await fetch(`${API_BASE_URL}/history`, { method: "DELETE" });
         setHistory([]);
       } catch (error) {
         console.error("Failed to clear history", error);
