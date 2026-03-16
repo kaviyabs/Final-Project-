@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getApiBase } from "@/lib/aiAnalysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,8 +45,7 @@ const Admin = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-        const response = await fetch(`${API_BASE_URL}/stats`);
+        const response = await fetch(`${getApiBase()}/stats`);
         if (response.ok) {
           const data = await response.json();
           setStats(data);

@@ -1,6 +1,8 @@
 version: '3.8'
 
 services:
+
+  # ─── MySQL Database ────────────────────────────────────────────────────────
   db:
     image: mysql:8
     restart: always
@@ -13,35 +15,74 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - verityai_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "localuser", "-plocalpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ─── Python FastAPI Backend ────────────────────────────────────────────────
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
+    image: verityai-backend:latest
     ports:
       - "8000:8000"
     environment:
       - PORT=8000
       - DATABASE_URL=mysql+pymysql://localuser:localpassword@db/truth_compass
+      # When running in Docker, the frontend is served via nginx at localhost:80
+      # and makes API calls to /api/* which nginx proxies to this container.
+      # So FRONTEND_URL can be set to a wildcard locally; restrict in production.
+      - FRONTEND_URL=*
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
     restart: always
+    networks:
+      - verityai_network
 
+  # ─── React Frontend (Vite + serve) ────────────────────────────────────────
   frontend:
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Empty string → frontend calls relative URLs like /api/*
+        # nginx then routes /api/* → backend container
+        VITE_API_URL: ""
+    image: verityai-frontend:latest
     ports:
       - "5173:5173"
     environment:
       - PORT=5173
-      # VITE_API_URL is built into the React app at build time.
-      # Localhost works correctly because your browser talks to localhost:8000 on your machine.
     depends_on:
       backend:
         condition: service_started
     restart: always
+    networks:
+      - verityai_network
+
+  # ─── Nginx Reverse Proxy ───────────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+    networks:
+      - verityai_network
+
+networks:
+  verityai_network:
+    driver: bridge
 
 volumes:
   db_data:

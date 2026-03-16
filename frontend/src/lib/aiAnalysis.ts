@@ -26,10 +26,29 @@ export const isGibberish = (text: string): boolean => {
   return avgLength > 15 || (words.length > 10 && avgLength < 2);
 };
 
+/**
+ * Resolves the backend API base URL.
+ * - In Docker (local): VITE_API_URL is empty → uses relative "/api" path
+ *   which Nginx proxies to the backend container.
+ * - In development (npm run dev): falls back to http://localhost:8000
+ * - On Render/Railway: set VITE_API_URL to the deployed backend URL.
+ */
+export const getApiBase = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && envUrl.trim() !== "") {
+    return envUrl.trim();
+  }
+  // When running behind nginx in Docker, use relative /api path
+  if (typeof window !== "undefined" && window.location.port !== "5173") {
+    return "/api";
+  }
+  // Local development fallback
+  return "http://localhost:8000";
+};
+
 export const analyzeNews = async (input: string, isUrl: boolean = false): Promise<AnalysisResult> => {
-  // Try to use the environment variable if available, otherwise default to localhost:8000
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-  
+  const API_BASE_URL = getApiBase();
+
   const response = await fetch(`${API_BASE_URL}/analyze`, {
     method: "POST",
     headers: {

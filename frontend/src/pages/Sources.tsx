@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getApiBase } from "@/lib/aiAnalysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -12,8 +13,7 @@ const Sources = () => {
   useEffect(() => {
     const fetchSources = async () => {
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-        const response = await fetch(`${API_BASE_URL}/sources`);
+        const response = await fetch(`${getApiBase()}/sources`);
         if (response.ok) {
           const data = await response.json();
           setSources(data);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getApiBase } from "@/lib/aiAnalysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,8 +26,7 @@ const History = () => {
   const fetchHistory = async () => {
     try {
       setIsLoading(true);
-      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      const response = await fetch(`${API_BASE_URL}/history`);
+      const response = await fetch(`${getApiBase()}/history`);
       if (response.ok) {
         const data = await response.json();
         setHistory(data);
@@ -45,8 +45,7 @@ const History = () => {
   const clearHistory = async () => {
     if (confirm("Are you sure you want to clear all history?")) {
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-        await fetch(`${API_BASE_URL}/history`, { method: "DELETE" });
+        await fetch(`${getApiBase()}/history`, { method: "DELETE" });
         setHistory([]);
       } catch (error) {
         console.error("Failed to clear history", error);
